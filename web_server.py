@@ -34,10 +34,10 @@ class ConversorClient:
                 raise RuntimeError("Servidor ICE no encontrado")
             return True
         except Ice.ConnectionRefusedException:
-            print("❌ No se puede conectar al servidor ICE en puerto 10000")
+            print(" No se puede conectar al servidor ICE en puerto 10000")
             return False
         except Exception as e:
-            print(f"❌ Error conectando: {e}")
+            print(f" Error conectando: {e}")
             return False
 
     def disconnect(self):
@@ -173,6 +173,10 @@ def server_error(error):
 # ============================================================================
 
 if __name__ == '__main__':
+    host = os.getenv('HOST', 'localhost')
+    port = int(os.getenv('PORT', '5000'))
+    debug = os.getenv('DEBUG', 'true').lower() == 'true'
+
     print(" Iniciando servidor Flask...")
 
     # Conectar con el servidor ICE
@@ -183,9 +187,10 @@ if __name__ == '__main__':
         print("   Asegúrate de que el servidor está corriendo: python3 server.py")
 
     try:
-        # Iniciar servidor Flask en puerto 5000
-        print(" Servidor Flask escuchando en http://localhost:5000")
-        app.run(debug=True, host='localhost', port=5000)
+        # Iniciar servidor Flask usando configuración por entorno
+        print(f" Servidor Flask escuchando en http://{host}:{port}")
+        print(" Para exponerlo con ngrok ejecuta: ngrok http " + str(port))
+        app.run(debug=debug, host=host, port=port)
     except KeyboardInterrupt:
         print("\n Deteniendo servidor...")
     finally:

@@ -17,6 +17,18 @@ Ya hemos instalado Flask. Si necesitas instalar dependencias adicionales:
 pip install flask
 ```
 
+### Instalar ngrok (macOS)
+
+```bash
+brew install ngrok
+```
+
+Luego inicia sesión y configura tu token (una sola vez):
+
+```bash
+ngrok config add-authtoken <TU_TOKEN>
+```
+
 ## Ejecución (3 terminales)
 
 ### Terminal 1: Servidor ICE (puerto 10000)
@@ -43,6 +55,22 @@ Abre tu navegador en:
 ```
 http://localhost:5000
 ```
+
+## Ejecución con URL pública (ngrok)
+
+Mantén corriendo `server.py` y `web_server.py`, y abre una tercera terminal para ngrok:
+
+### Terminal 3: Túnel ngrok hacia Flask (puerto 5000)
+```bash
+ngrok http 5000
+```
+
+ngrok mostrará una URL pública como:
+```
+https://xxxx-xx-xx-xx-xx.ngrok-free.app
+```
+
+Comparte esa URL para acceder al frontend desde internet.
 
 ## Endpoints API disponibles
 

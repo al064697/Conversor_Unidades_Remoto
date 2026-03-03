@@ -16,6 +16,38 @@ const labels = {
 
 let currentCat = "temperatura";
 let history = [];
+const THEME_KEY = "themeMode";
+const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+function resolveTheme(mode) {
+    if (mode === "auto") return systemThemeQuery.matches ? "dark" : "light";
+    return mode;
+}
+
+function applyTheme(mode) {
+    const resolvedTheme = resolveTheme(mode);
+    document.documentElement.setAttribute("data-theme", resolvedTheme);
+}
+
+function initThemeMode() {
+    const themeSelect = document.getElementById("theme-mode");
+    if (!themeSelect) return;
+
+    const savedMode = localStorage.getItem(THEME_KEY) || "auto";
+    themeSelect.value = savedMode;
+    applyTheme(savedMode);
+
+    themeSelect.addEventListener("change", () => {
+        const selectedMode = themeSelect.value;
+        localStorage.setItem(THEME_KEY, selectedMode);
+        applyTheme(selectedMode);
+    });
+
+    systemThemeQuery.addEventListener("change", () => {
+        const currentMode = localStorage.getItem(THEME_KEY) || "auto";
+        if (currentMode === "auto") applyTheme("auto");
+    });
+}
 
 
 /**
@@ -196,4 +228,5 @@ document.getElementById("valor").addEventListener("keydown", e => {
 /**
  * INIT
  */
+initThemeMode();
 populateSelects(currentCat);
