@@ -66,32 +66,111 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 4) Ejecutar la app completa (modo local)
+## 4) Ejecución automática (recomendado)
+
+Ejecuta todo automáticamente con un solo comando:
+
+### macOS/Linux
+
+**Primer setup (una sola vez):**
+
+```bash
+cd /ruta/al/proyecto/Conversor_Unidades_Remoto-1
+source .venv/bin/activate
+chmod +x run.sh
+```
+
+**Ejecutar:**
+
+```bash
+./run.sh
+```
+
+**Qué esperar:**
+```
+🚀 Iniciando Conversor de Unidades...
+
+[1/3] Levantando ICE Server en puerto 10000
+ICE PID: 12345
+[2/3] Levantando Flask Server en puerto 5000
+Flask PID: 12346
+[3/3] ¿Quieres levantar ngrok para acceso remoto? (s/n)
+```
+
+Si respondés `n`, verás:
+```
+✅ Servidores activos:
+   - ICE Server: http://localhost:10000
+   - Web App: http://localhost:5000
+Presiona Ctrl+C para detener
+```
+
+**Luego abre en navegador:**
+- http://localhost:5000
+
+### Windows (PowerShell)
+
+**Primer setup (una sola vez):**
+
+```powershell
+cd C:\ruta\al\proyecto\Conversor_Unidades_Remoto-1
+.\.venv\Scripts\Activate.ps1
+```
+
+**Ejecutar:**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File run.ps1
+```
+
+**Qué esperar:** (igual que macOS)
+
+**Luego abre en navegador:**
+- http://localhost:5000
+
+### Activar ngrok (opcional)
+
+Si en la pregunta respondés `s`:
+
+```
+✅ Levantando ngrok en puerto 5000...
+```
+
+Verás una salida como:
+```
+Forwarding https://abc-123-def.ngrok-free.app -> http://localhost:5000
+```
+
+Comparte esa URL con quien quieras para que acceda remotamente.
+
+## 5) Ejecutar la app completa (modo manual)
 
 La app usa 2 procesos:
 
 1. Servidor ICE (puerto 10000)
 2. Servidor web Flask (puerto 5000 por defecto)
 
-### Ejecución única desde backend
+### Ejecución desde carpeta `backend`
 
 #### Terminal 1: ICE
 
 ```bash
-python backend/server.py
+cd backend
+python3 server.py
 ```
 
 #### Terminal 2: Web Flask
 
 ```bash
-python backend/web_server.py
+cd backend
+python3 web_server.py
 ```
 
 Luego abre:
 
 - http://localhost:5000
 
-## 5) Configuración por variables de entorno (host/puerto/debug)
+## 6) Configuración por variables de entorno (host/puerto/debug)
 
 El servidor web soporta:
 
@@ -123,7 +202,7 @@ set DEBUG=true
 python backend\web_server.py
 ```
 
-## 6) Uso funcional de la app (frontend)
+## 7) Uso funcional de la app (frontend)
 
 - Selecciona categoría: temperatura, longitud, peso, velocidad
 - Ingresa valor numérico
@@ -133,7 +212,7 @@ python backend\web_server.py
 - Revisa historial reciente y recarga conversiones al hacer click
 - Cambia tema en selector: `Auto`, `Dark`, `Light`
 
-## 7) Endpoints API disponibles
+## 8) Endpoints API disponibles
 
 ### `POST /api/convert`
 
@@ -175,7 +254,7 @@ Ejemplo: `GET /api/unidades/temperatura`
 }
 ```
 
-## 8) Exponer por internet con ngrok (opcional)
+## 9) Exponer por internet con ngrok (opcional)
 
 ### Instalar ngrok
 
@@ -205,7 +284,9 @@ ngrok config add-authtoken TU_TOKEN
 
 ### Levantar túnel
 
-Con el web server ya corriendo en `5000`:
+Con el web server ya corriendo en `5000` (desde carpeta `backend`):
+
+**Terminal 3 (desde carpeta principal del proyecto):**
 
 ```bash
 ngrok http 5000
@@ -213,7 +294,7 @@ ngrok http 5000
 
 Comparte la URL `https://...ngrok-free.app`.
 
-## 9) Cliente de prueba por terminal
+## 10) Cliente de prueba por terminal
 
 Para validar llamadas ICE sin frontend:
 
@@ -221,7 +302,7 @@ Para validar llamadas ICE sin frontend:
 python backend/client.py
 ```
 
-## 10) Regenerar stubs ICE (si editas `Conversor.ice`)
+## 11) Regenerar stubs ICE (si editas `Conversor.ice`)
 
 > Solo necesario si cambias la interfaz.
 
@@ -231,7 +312,7 @@ slice2py backend/Conversor.ice
 
 Esto actualiza el paquete `Conversor/` usado por servidor y cliente.
 
-## 11) Troubleshooting (Windows + macOS)
+## 12) Troubleshooting (Windows + macOS)
 
 ### Error: no conecta al servidor ICE
 
@@ -274,13 +355,13 @@ netstat -ano | findstr :5000
 
 - Hard reload del navegador (`Ctrl+F5` en Windows, `Cmd+Shift+R` en macOS)
 
-## 12) Flujo recomendado de trabajo
+## 13) Flujo recomendado de trabajo
 
-1. Activar venv
-2. Ejecutar `python backend/server.py`
-3. Ejecutar `python backend/web_server.py`
-4. Probar en navegador
-5. (Opcional) abrir ngrok
+1. Activar venv: `source .venv/bin/activate` (macOS) o `.\.venv\Scripts\Activate.ps1` (Windows)
+2. **Terminal 1 (ICE Server):** `cd backend && python3 server.py`
+3. **Terminal 2 (Web Server):** `cd backend && python3 web_server.py`
+4. Probar en navegador: http://localhost:5000
+5. **(Opcional) Terminal 3 (ngrok):** `ngrok http 5000`
 
 ---
 

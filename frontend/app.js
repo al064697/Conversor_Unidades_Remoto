@@ -191,6 +191,9 @@ document.querySelectorAll(".tab").forEach(tab => {
         currentCat = tab.dataset.cat;
         populateSelects(currentCat);
 
+        // Limpiar campo de valor al cambiar categoría
+        document.getElementById("valor").value = '';
+
         const resEl = document.getElementById("result");
         resEl.className = "screen-value placeholder";
         resEl.textContent = "—";
