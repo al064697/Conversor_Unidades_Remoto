@@ -1,5 +1,12 @@
 import sys
+import os
 import Ice       # Libreria principal de ZeroC ICE
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 import Conversor # Modulo generado automaticamente por slice2py desde Conversor.ice
 
 # Implementacion del servant (objeto remoto)

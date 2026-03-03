@@ -1,81 +1,144 @@
-# 🔄 Conversor de Unidades Remoto - Guía de Ejecución
+# Guía completa de ejecución y uso (Windows + macOS)
 
-## Arquitectura
+Esta guía cubre instalación, ejecución, uso diario, pruebas básicas y publicación con ngrok para que el proyecto sea portable entre Windows y macOS.
 
+## 1) Estructura del proyecto
+
+```text
+Conversor_Unidades_Remoto-1/
+├── backend/
+│   ├── __init__.py
+│   ├── Conversor.ice
+│   ├── server.py
+│   ├── web_server.py
+│   └── client.py
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+├── Conversor/                  # stubs ICE generados por slice2py
+├── requirements.txt
+└── SETUP.md
 ```
-┌──────────────┐          ┌─────────────────┐          ┌──────────────┐
-│   Frontend   │ ◄────────┤   Flask Server  │ ◄────────┤  ICE Server  │
-│ (HTML/CSS/JS)│ HTTP:5000 │   (web_server)  │ ICE:10000│ (server.py)  │
-└──────────────┘          └─────────────────┘          └──────────────┘
-```
 
-## Instalación
+## 2) Requisitos
 
-Ya hemos instalado Flask. Si necesitas instalar dependencias adicionales:
+- Python 3.10 o 3.11 recomendado
+- pip actualizado
+- Acceso a terminal
+- Dependencias Python del archivo `requirements.txt`
+
+## 3) Crear entorno virtual e instalar dependencias
+
+### macOS (Terminal / zsh)
 
 ```bash
-pip install flask
+cd /ruta/al/proyecto/Conversor_Unidades_Remoto-1
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-### Instalar ngrok (macOS)
+### Windows (PowerShell)
+
+```powershell
+cd C:\ruta\al\proyecto\Conversor_Unidades_Remoto-1
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Si PowerShell bloquea scripts:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+### Windows (CMD)
+
+```bat
+cd C:\ruta\al\proyecto\Conversor_Unidades_Remoto-1
+py -m venv .venv
+.venv\Scripts\activate.bat
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+## 4) Ejecutar la app completa (modo local)
+
+La app usa 2 procesos:
+
+1. Servidor ICE (puerto 10000)
+2. Servidor web Flask (puerto 5000 por defecto)
+
+### Ejecución única desde backend
+
+#### Terminal 1: ICE
 
 ```bash
-brew install ngrok
+python backend/server.py
 ```
 
-Luego inicia sesión y configura tu token (una sola vez):
+#### Terminal 2: Web Flask
 
 ```bash
-ngrok config add-authtoken <TU_TOKEN>
+python backend/web_server.py
 ```
 
-## Ejecución (3 terminales)
+Luego abre:
 
-### Terminal 1: Servidor ICE (puerto 10000)
+- http://localhost:5000
+
+## 5) Configuración por variables de entorno (host/puerto/debug)
+
+El servidor web soporta:
+
+- `HOST` (default `localhost`)
+- `PORT` (default `5000`)
+- `DEBUG` (default `true`)
+
+### macOS
+
 ```bash
-python3 server.py
-```
-Deberías ver:
-```
-Servidor escuchando en puerto 10000... (Ctrl+C para detener)
+HOST=0.0.0.0 PORT=8080 DEBUG=true python backend/web_server.py
 ```
 
-### Terminal 2: Servidor Flask (puerto 5000)
-```bash
-python3 web_server.py
-```
-Deberías ver:
-```
-✅ Conectado al servidor ICE en puerto 10000
-🌐 Servidor Flask escuchando en http://localhost:5000
-```
+### Windows PowerShell
 
-### Terminal 3: Acceso a la web
-Abre tu navegador en:
-```
-http://localhost:5000
+```powershell
+$env:HOST="0.0.0.0"
+$env:PORT="8080"
+$env:DEBUG="true"
+python backend/web_server.py
 ```
 
-## Ejecución con URL pública (ngrok)
+### Windows CMD
 
-Mantén corriendo `server.py` y `web_server.py`, y abre una tercera terminal para ngrok:
-
-### Terminal 3: Túnel ngrok hacia Flask (puerto 5000)
-```bash
-ngrok http 5000
+```bat
+set HOST=0.0.0.0
+set PORT=8080
+set DEBUG=true
+python backend\web_server.py
 ```
 
-ngrok mostrará una URL pública como:
-```
-https://xxxx-xx-xx-xx-xx.ngrok-free.app
-```
+## 6) Uso funcional de la app (frontend)
 
-Comparte esa URL para acceder al frontend desde internet.
+- Selecciona categoría: temperatura, longitud, peso, velocidad
+- Ingresa valor numérico
+- Selecciona unidades origen/destino
+- Usa botón swap para intercambiar unidades
+- Convierte con botón o en tiempo real al cambiar valor/unidades
+- Revisa historial reciente y recarga conversiones al hacer click
+- Cambia tema en selector: `Auto`, `Dark`, `Light`
 
-## Endpoints API disponibles
+## 7) Endpoints API disponibles
 
-### POST /api/convert
-Convierte unidades:
+### `POST /api/convert`
+
+Body:
+
 ```json
 {
   "categoria": "temperatura",
@@ -86,27 +149,25 @@ Convierte unidades:
 ```
 
 Respuesta:
+
 ```json
 {
   "resultado": 0.0
 }
 ```
 
-### GET /api/unidades/<categoria>
-Obtiene unidades disponibles:
-```
-GET /api/unidades/temperatura
-```
+### `GET /api/unidades/<categoria>`
 
-Respuesta:
+Ejemplo: `GET /api/unidades/temperatura`
+
 ```json
 {
   "unidades": "celsius, fahrenheit, kelvin"
 }
 ```
 
-### GET /api/status
-Verifica estado de conexión:
+### `GET /api/status`
+
 ```json
 {
   "connected": true,
@@ -114,51 +175,113 @@ Verifica estado de conexión:
 }
 ```
 
-## Troubleshooting
+## 8) Exponer por internet con ngrok (opcional)
 
-### "Error: Servidor ICE desconectado"
-- Asegúrate de que `python3 server.py` está ejecutándose en terminal 1
-- Verifica que el puerto 10000 no está en uso: `netstat -an | grep 10000`
+### Instalar ngrok
 
-### Puerto 5000 en uso
+#### macOS
+
+```bash
+brew install ngrok
+```
+
+#### Windows (winget)
+
+```powershell
+winget install ngrok.ngrok
+```
+
+#### Windows (choco, opcional)
+
+```powershell
+choco install ngrok
+```
+
+### Configurar token (una sola vez)
+
+```bash
+ngrok config add-authtoken TU_TOKEN
+```
+
+### Levantar túnel
+
+Con el web server ya corriendo en `5000`:
+
+```bash
+ngrok http 5000
+```
+
+Comparte la URL `https://...ngrok-free.app`.
+
+## 9) Cliente de prueba por terminal
+
+Para validar llamadas ICE sin frontend:
+
+```bash
+python backend/client.py
+```
+
+## 10) Regenerar stubs ICE (si editas `Conversor.ice`)
+
+> Solo necesario si cambias la interfaz.
+
+```bash
+slice2py backend/Conversor.ice
+```
+
+Esto actualiza el paquete `Conversor/` usado por servidor y cliente.
+
+## 11) Troubleshooting (Windows + macOS)
+
+### Error: no conecta al servidor ICE
+
+- Verifica que `backend/server.py` esté corriendo
+- Verifica puerto 10000
+
+macOS:
+
+```bash
+lsof -i :10000
+```
+
+Windows (PowerShell):
+
+```powershell
+netstat -ano | findstr :10000
+```
+
+### Puerto 5000 ocupado
+
+macOS:
+
 ```bash
 lsof -i :5000
-kill -9 <PID>
 ```
 
-### Variantes de ejecución
+Windows:
 
-**Con debug desactivado:**
-```bash
-python3 web_server.py
-# Y cambiar en web_server.py: app.run(debug=False, ...)
+```powershell
+netstat -ano | findstr :5000
 ```
 
-**Acceso remoto (no solo localhost):**
-```bash
-python3 web_server.py
-# Y cambiar: app.run(host='0.0.0.0', port=5000)
-```
+### Dependencia `zeroc-ice` falla al instalar
 
-## Archivos importantes
+- Actualiza pip: `python -m pip install --upgrade pip`
+- Usa Python 3.10/3.11
+- Reinstala en entorno virtual limpio
 
-- `server.py` - Servidor ICE (conversiones remotas)
-- `web_server.py` - Servidor Flask + API endpoints (NUEVO)
-- `frontend/index.html` - Interfaz web
-- `frontend/app.js` - Lógica frontend (modificado para usar API)
-- `frontend/style.css` - Estilos (modificado con animación de carga)
-- `Conversor.ice` - Definición de interfaces ICE
-- `Conversor/` - Módulos Python generados por slice2py
+### Cambios de frontend no se ven
 
-## Flujo de una conversión
+- Hard reload del navegador (`Ctrl+F5` en Windows, `Cmd+Shift+R` en macOS)
 
-1. Usuario ingresa valor en frontend
-2. `app.js` envía HTTP POST a `/api/convert`
-3. `web_server.py` recibe y llama a `servidor.py` vía ICE
-4. `server.py` realiza la conversión matemática
-5. Respuesta regresa: ICE → Flask → Frontend
-6. resultado se muestra en pantalla
+## 12) Flujo recomendado de trabajo
+
+1. Activar venv
+2. Ejecutar `python backend/server.py`
+3. Ejecutar `python backend/web_server.py`
+4. Probar en navegador
+5. (Opcional) abrir ngrok
 
 ---
 
-¡Listo para usar! 🚀
+Con esta estructura y guía, el proyecto queda preparado para uso portable en macOS y Windows.

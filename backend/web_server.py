@@ -7,9 +7,17 @@ import sys
 import os
 from flask import Flask, render_template, jsonify, request
 import Ice
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 import Conversor  # Módulo generado por slice2py
 
-app = Flask(__name__, static_folder='frontend', static_url_path='')
+FRONTEND_DIR = os.path.join(PROJECT_ROOT, 'frontend')
+
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 
 
 # ============================================================================
@@ -172,7 +180,7 @@ def server_error(error):
 # MAIN
 # ============================================================================
 
-if __name__ == '__main__':
+def main():
     host = os.getenv('HOST', 'localhost')
     port = int(os.getenv('PORT', '5000'))
     debug = os.getenv('DEBUG', 'true').lower() == 'true'
@@ -195,3 +203,7 @@ if __name__ == '__main__':
         print("\n Deteniendo servidor...")
     finally:
         cliente.disconnect()
+
+
+if __name__ == '__main__':
+    main()
